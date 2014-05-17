@@ -1,7 +1,5 @@
 #pragma once
 
-class XElement;
-
 using namespace System::Collections;
 
 namespace CLROBS {

@@ -55,6 +55,15 @@
     <ClInclude Include="AbstractWPFSettingsPane.h">
       <Filter>Api\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Stdafx.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="OBSUtils.h">
+      <Filter>Api\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageSource.h">
+      <Filter>Api\Interfaces</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">
@@ -62,9 +71,6 @@
     </ClCompile>
     <ClCompile Include="AbstractPlugin.cpp">
       <Filter>Api\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="ImageSource.h">
-      <Filter>Api\Interfaces</Filter>
     </ClCompile>
     <ClCompile Include="API.cpp">
       <Filter>Api\Source</Filter>
@@ -81,17 +87,17 @@
     <ClCompile Include="AbstractImageSource.cpp">
       <Filter>Api\Source</Filter>
     </ClCompile>
-    <ClCompile Include="OBSUtils.h">
-      <Filter>Api\Headers</Filter>
-    </ClCompile>
     <ClCompile Include="OBSUtils.cpp">
       <Filter>Api\Source</Filter>
     </ClCompile>
     <ClCompile Include="AbstractWPFSettingsPane.cpp">
       <Filter>Api\Source</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ReadMe.txt" />
+    <ClCompile Include="Stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector2.cpp">
+      <Filter>Api\Source</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

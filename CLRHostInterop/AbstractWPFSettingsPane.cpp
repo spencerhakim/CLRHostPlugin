@@ -1,3 +1,4 @@
+#include "Stdafx.h"
 #include "AbstractWPFSettingsPane.h"
 
 using namespace System::Windows::Controls;
@@ -13,45 +14,47 @@ IntPtr ChildHwndSourceHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, b
    return IntPtr(0);
 }
 
-AbstractWPFSettingsPane::AbstractWPFSettingsPane()
-{
-    this->Category = gcnew String("DefaultSettingsPanelCategory");
-}
+namespace CLROBS {
+    AbstractWPFSettingsPane::AbstractWPFSettingsPane()
+    {
+        this->Category = gcnew System::String("DefaultSettingsPanelCategory");
+    }
 
-long long AbstractWPFSettingsPane::CreatePane(long long parentHwnd)
-{
-    hwndSource = gcnew HwndSource(
-        0,                                      // class style
-        _DS_CONTROL | _WS_CHILD | _WS_SYSMENU,  // style
-        _WS_EX_CONTROLPARENT,                   // exstyle
-        0, 0, (int)(427 * 1.5), (int)(336 * 1.5), // why do I have to do this?        
-        "Helllo!",
-        IntPtr(parentHwnd)                      // parent window 
-        );
+    long long AbstractWPFSettingsPane::CreatePane(long long parentHwnd)
+    {
+        hwndSource = gcnew HwndSource(
+            0,                                      // class style
+            _DS_CONTROL | _WS_CHILD | _WS_SYSMENU,  // style
+            _WS_EX_CONTROLPARENT,                   // exstyle
+            0, 0, (int)(427 * 1.5), (int)(336 * 1.5), // why do I have to do this?
+            "Helllo!",
+            IntPtr(parentHwnd)                      // parent window
+            );
 
-    // hook all keyboard keys
-    // in the future make it interact better (don't capture esc, etc.)
-    hwndSource->AddHook(gcnew HwndSourceHook(ChildHwndSourceHook));
+        // hook all keyboard keys
+        // in the future make it interact better (don't capture esc, etc.)
+        hwndSource->AddHook(gcnew HwndSourceHook(ChildHwndSourceHook));
 
-    hwndSource->RootVisual = CreateUIElement();
-    hwndSource->CompositionTarget->BackgroundColor = SystemColors::ControlColor;
-    
-    return hwndSource->Handle.ToInt64();
-}
+        hwndSource->RootVisual = CreateUIElement();
+        hwndSource->CompositionTarget->BackgroundColor = SystemColors::ControlColor;
 
-void AbstractWPFSettingsPane::DestroyPane()
-{
-    if (hwndSource != nullptr) {
-        delete hwndSource;
+        return hwndSource->Handle.ToInt64();
+    }
+
+    void AbstractWPFSettingsPane::DestroyPane()
+    {
+        if (hwndSource != nullptr) {
+            delete hwndSource;
+        }
+    }
+
+    System::String^ AbstractWPFSettingsPane::Category::get()
+    {
+        return category;
+    }
+
+    void AbstractWPFSettingsPane::Category::set(System::String^ category)
+    {
+        this->category = category;
     }
 }
-String^ AbstractWPFSettingsPane::Category::get()
-{
-    return category;
-}
-
-void AbstractWPFSettingsPane::Category::set(String^ category)
-{
-    this->category = category;
-}
-

@@ -1,11 +1,8 @@
 #pragma once
 
-#include <string>
-#include <map>
-
-#include "CLRApiCommon.h"
 #include "CLRObjectRef.h"
 #include "CLRImageSourceFactory.h"
+
 
 class CLRHostApi 
 {

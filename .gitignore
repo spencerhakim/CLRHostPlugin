@@ -1,3 +1,24 @@
+Thumbs.db
+*.user
+*.opensdf
+*.sdf
+*.suo
+*.ncb
+*.sln.docstates
+*.bak
+*.cache
+*.vsp
+*.vsmdi
+/ipch
+[Tt]est[Rr]esult*
+[Bb]in*/
+[Oo]bj/
+[Dd]ebug*/
+[Rr]elease*/
+
+packages/*
+!packages/repositories.config
+
 # Compiled Object files
 *.slo
 *.lo
@@ -12,38 +33,8 @@
 *.la
 *.a
 
-#VS Files
-*.vcxproj.user
-*.sdf
-*.suo
-*.opensdf
-
-CLRCSharpSamplePlugin/SharpDX
-
-#User files
-CLRHostInterop/x64/Debug
-CLRHostInterop/x64/Release
-CLRHostInterop/win32/Debug
-CLRHostInterop/win32/Release
-
-CLRSamplePlugin/x64/Debug
-CLRSamplePlugin/x64/Release
-CLRSamplePlugin/win32/Debug
-CLRSamplePlugin/win32/Release
-
-CLRCSharpSamplePlugin/bin
-CLRCSharpSamplePlugin/obj
-
-CLRHostPlugin/x64/Debug
-CLRHostPlugin/x64/Release
-CLRHostPlugin/win32/Debug
-CLRHostPlugin/win32/Release
-
 Releasex86
 Releasex64
-
-ipch
-
+Samples
+CLRCSharpSamplePlugin/SharpDX
 *.7z
-
-

@@ -1,10 +1,7 @@
 #pragma once
 
-#include <windows.h>
-#include <string>
 #include <vector>
-
-#include <comutil.h>
+#include <metahost.h>
 
 #include "CLRHostApi.h"
 #include "CLRPlugin.h"
@@ -13,7 +10,6 @@ struct ICLRMetaHost;
 struct ICLRRuntimeInfo;
 struct ICLRRuntimeHost;
 struct ICorRuntimeHost;
-
 
 namespace mscorlib {
     struct _AppDomain;
@@ -30,7 +26,6 @@ namespace mscorlib {
 class CLRHost {
 
 private:
-
     CLRHostApi *clrApi;
 
     ICLRMetaHost *clrMetaHost;
@@ -64,10 +59,33 @@ public:
 public:
     bool Initialize();
     bool LoadInteropLibrary();
+
     void LoadPlugins();
     void UnloadPlugins();
+
     void OnStartStream();
     void OnStopStream();
+
+    void OnStartStreaming();
+    void OnStopStreaming();
+
+    void OnStartRecording();
+    void OnStopRecording();
+
+    void OnOBSStatus(bool running, bool streaming, bool recording, bool previewing, bool reconnecting);
+    void OnStreamStatus(bool streaming, bool previewOnly, UINT bytesPerSec, double strain, UINT totalStreamTime, UINT totalNumFrames, UINT numDroppedFrames, UINT fps);
+
+    void OnSceneSwitch(CTSTR scene);
+    void OnScenesChanged();
+
+    void OnSourceOrderChanged();
+    void OnSourceChanged(CTSTR sourceName, XElement* source);
+    void OnSourcesAddedOrRemoved();
+
+    void OnMicVolumeChanged(float level, bool muted, bool finalValue);
+    void OnDesktopVolumeChanged(float level, bool muted, bool finalValue);
+
+    void OnLogUpdate(CTSTR delta, UINT length);
 
 public:
     mscorlib::_Type *GetImageSourceType() { return imageSourceType; }

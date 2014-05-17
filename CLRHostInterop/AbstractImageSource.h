@@ -3,12 +3,14 @@
 #include "ImageSource.h"
 #include "API.h"
 #include "GraphicsSystem.h"
+#include "Vector2.h"
 
 namespace CLROBS {
     public ref class AbstractImageSource abstract : public ImageSource 
     {
     private:
         Vector2^ size;
+
     public:
         
         AbstractImageSource();

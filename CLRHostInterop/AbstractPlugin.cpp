@@ -1,31 +1,34 @@
+#include "Stdafx.h"
 #include "AbstractPlugin.h"
 
-AbstractPlugin::AbstractPlugin()
-{
-    Name = gcnew String("Default Plugin Name");
-    Description = gcnew String("Default Plugin Description");
-}
+namespace CLROBS {
+    AbstractPlugin::AbstractPlugin()
+    {
+        Name = gcnew System::String("Default Plugin Name");
+        Description = gcnew System::String("Default Plugin Description");
+    }
 
-AbstractPlugin::~AbstractPlugin()
-{
-}
+    AbstractPlugin::~AbstractPlugin()
+    {
+    }
 
-String^ AbstractPlugin::Name::get()
-{
-    return pluginName;
-}
+    System::String^ AbstractPlugin::Name::get()
+    {
+        return pluginName;
+    }
 
-void AbstractPlugin::Name::set(String^ pluginName)
-{
-    this->pluginName = pluginName;
-}
+    void AbstractPlugin::Name::set(System::String^ pluginName)
+    {
+        this->pluginName = pluginName;
+    }
 
-String^ AbstractPlugin::Description::get()
-{
-    return pluginDescription;
-}
+    System::String^ AbstractPlugin::Description::get()
+    {
+        return pluginDescription;
+    }
 
-void AbstractPlugin::Description::set(String^ pluginDescription)
-{
-    this->pluginDescription = pluginDescription;
+    void AbstractPlugin::Description::set(System::String^ pluginDescription)
+    {
+        this->pluginDescription = pluginDescription;
+    }
 }

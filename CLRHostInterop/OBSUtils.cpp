@@ -1,6 +1,9 @@
+#include "Stdafx.h"
 #include "OBSUtils.h"
 
-std::wstring CLROBS::ToWString(System::String^ string)
+#include <msclr\marshal_cppstd.h>
+
+std::wstring ToWString(System::String^ string)
 {
-    return marshal_as<std::wstring, System::String^>(string);
+    return msclr::interop::marshal_as<std::wstring, System::String^>(string);
 }

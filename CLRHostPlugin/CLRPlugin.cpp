@@ -1,74 +1,37 @@
+#include "Stdafx.h"
 #include "CLRPlugin.h"
-
-#include <metahost.h> 
-#include <string>
 
 #pragma comment(lib, "mscoree.lib") 
 #import "mscorlib.tlb" raw_interfaces_only high_property_prefixes("_get","_put","_putref") rename("ReportEvent", "InteropServices_ReportEvent") 
-using namespace mscorlib; 
+using namespace mscorlib;
 
-void __cdecl Log(const TCHAR *format, ...);
-void __cdecl CrashError(const TCHAR *format, ...);
+#define GET_METHODINFO(x)                                                                   \
+    hr = objectType->GetMethod_6(bstr_t(x), &methodInfo);                                   \
+    if (FAILED(hr) || !methodInfo) {                                                        \
+        Log(TEXT("Failed to get %s method definition of Plugin class: 0x%08lx"), x, hr);    \
+        goto errorCleanup;                                                                  \
+    }                                                                                       \
+    methodInfos[x] = methodInfo;
 
-#ifndef assert
-#ifdef _DEBUG
-#define assert(check) if(!(check)) CrashError(TEXT("Assertion Failiure: (") TEXT(#check) TEXT(") failed\r\nFile: %s, line %d"), TEXT(__FILE__), __LINE__);
-#else
-#define assert(check)
-#endif
-#endif
+#define SAFE_RELEASE(x) if(x){ x->Release(); x = nullptr; }
+#define CLR_INVOKE(x) Invoke(__FUNCTION__, x)
+#define PUT_ELEMENT(x, y) { LONG index[] = { x }; SafeArrayPutElement(args, index, &y); }
 
 bool CLRPlugin::Attach(CLRObjectRef &clrObjectRef, mscorlib::_Type *objectType)
 {
     CLRObject::Attach(clrObjectRef, objectType);
 
-    bstr_t loadPlugindName("LoadPlugin");
-    bstr_t unloadPluginMethodName("UnloadPlugin");
-    bstr_t onStartStreamMethodName("OnStartStream");
-    bstr_t onStopStreamMethodName("OnStopStream");
+    mscorlib::_MethodInfo* methodInfo = NULL;
+    HRESULT hr = S_OK;
 
-    // properties
-    bstr_t getPluginNameMethodName("get_Name");
-    bstr_t getPluginDescriptionMethodName("get_Description");
+    GET_METHODINFO("get_Name");
+    GET_METHODINFO("get_Description");
 
-    HRESULT hr;
+    GET_METHODINFO("LoadPlugin");
+    GET_METHODINFO("UnloadPlugin");
 
-    hr = objectType->GetMethod_6(loadPlugindName, &loadPluginMethod);
-    if (FAILED(hr) || !loadPluginMethod) {
-        Log(TEXT("Failed to get LoadPlugin method definition of Plugin class: 0x%08lx"), hr); 
-        goto errorCleanup;
-    }
-
-    hr = objectType->GetMethod_6(unloadPluginMethodName, &unloadPluginMethod);
-    if (FAILED(hr) || !unloadPluginMethod) {
-        Log(TEXT("Failed to get UnloadPlugin method definition of Plugin class: 0x%08lx"), hr); 
-        goto errorCleanup;
-    }
-
-
-    hr = objectType->GetMethod_6(onStartStreamMethodName, &onStartStreamMethod);
-    if (FAILED(hr) || !onStartStreamMethod) {
-        Log(TEXT("Failed to get OnStartStream method definition of Plugin class: 0x%08lx"), hr); 
-        goto errorCleanup;
-    }
-
-    hr = objectType->GetMethod_6(onStopStreamMethodName, &onStopStreamMethod);
-    if (FAILED(hr) || !onStopStreamMethod) {
-        Log(TEXT("Failed to get OnStopStream method definition of Plugin class: 0x%08lx"), hr); 
-        goto errorCleanup;
-    }
-
-    hr = objectType->GetMethod_6(getPluginNameMethodName, &getPluginNameMethod);
-    if (FAILED(hr) || !getPluginNameMethod) {
-        Log(TEXT("Failed to get Name property get() method definition of Plugin class: 0x%08lx"), hr); 
-        goto errorCleanup;
-    }
-
-    hr = objectType->GetMethod_6(getPluginDescriptionMethodName, &getPluginDescriptionMethod);
-    if (FAILED(hr) || !getPluginDescriptionMethod) {
-        Log(TEXT("Failed to get Description property get() method definition of Plugin class: 0x%08lx"), hr); 
-        goto errorCleanup;
-    }
+    GET_METHODINFO("OnStartStream");
+    GET_METHODINFO("OnStopStream");
 
     goto success;
 
@@ -82,99 +45,29 @@ success:
 
 void CLRPlugin::Detach()
 {
-    if (loadPluginMethod) {
-        loadPluginMethod->Release();
-        loadPluginMethod = nullptr;
-    }
-    if (unloadPluginMethod) {
-        unloadPluginMethod->Release();
-        unloadPluginMethod = nullptr;
-    }
-    if (onStartStreamMethod) {
-        onStartStreamMethod->Release();
-        onStartStreamMethod = nullptr;
-    }
-    if (onStopStreamMethod) {
-        onStopStreamMethod->Release();
-        onStopStreamMethod = nullptr;
-    }
-    if (getPluginNameMethod) {
-        getPluginNameMethod->Release();
-        getPluginNameMethod = nullptr;
-    }
-    if (getPluginDescriptionMethod) {
-        getPluginDescriptionMethod->Release();
-        getPluginDescriptionMethod = nullptr;
-    }
+    for (auto i = methodInfos.begin(); i != methodInfos.end(); i++)
+        SAFE_RELEASE(i->second);
 
     CLRObject::Detach();
 }
 
-bool CLRPlugin::LoadPlugin()
+void CLRPlugin::Invoke(std::string funcMacro, LPSAFEARRAY parameters)
 {
     if (!IsValid()) {
-        Log(TEXT("CLRPlugin::OnStopStream() no managed object attached"));
-    }
-
-    variant_t objectRef(GetObjectRef());
-    variant_t returnVal;
-
-    HRESULT hr = loadPluginMethod->Invoke_3(objectRef, nullptr, &returnVal);
-    if (FAILED(hr)) {
-        Log(TEXT("Failed to invoke OnStopStream on managed instance: 0x%08lx"), hr); 
-    }
-
-    return returnVal.boolVal == VARIANT_TRUE;
-}
-
-void CLRPlugin::UnloadPlugin()
-{
-    if (!IsValid()) {
-        Log(TEXT("CLRPlugin::UnloadPlugin() no managed object attached"));
+        Log(TEXT("%s() no managed object attached"), funcMacro);
     }
 
     variant_t objectRef(GetObjectRef());
 
-    HRESULT hr = unloadPluginMethod->Invoke_3(objectRef, nullptr, nullptr);
+    auto splitMacro = split(funcMacro, "::");
+    HRESULT hr = methodInfos[splitMacro[splitMacro.size()-1]]->Invoke_3(objectRef, parameters, nullptr);
     if (FAILED(hr)) {
-        Log(TEXT("Failed to invoke UnloadPlugin on managed instance: 0x%08lx"), hr); 
+        Log(TEXT("Failed to invoke %s on managed instance: 0x%08lx"), funcMacro, hr);
     }
-
-    return;
 }
 
-void CLRPlugin::OnStartStream()
-{
-    if (!IsValid()) {
-        Log(TEXT("CLRPlugin::OnStartStream() no managed object attached"));
-    }
-
-    variant_t objectRef(GetObjectRef());
-
-    HRESULT hr = onStartStreamMethod->Invoke_3(objectRef, nullptr, nullptr);
-    if (FAILED(hr)) {
-        Log(TEXT("Failed to invoke OnStartStream on managed instance: 0x%08lx"), hr); 
-    }
-
-
-    return;
-}
-
-void CLRPlugin::OnStopStream()
-{
-    if (!IsValid()) {
-        Log(TEXT("CLRPlugin::OnStopStream() no managed object attached"));
-    }
-
-    variant_t objectRef(GetObjectRef());
-
-    HRESULT hr = onStopStreamMethod->Invoke_3(objectRef, nullptr, nullptr);
-    if (FAILED(hr)) {
-        Log(TEXT("Failed to invoke OnStopStream on managed instance: 0x%08lx"), hr); 
-    }
-
-    return;
-}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::wstring CLRPlugin::GetPluginName()
 {
@@ -186,9 +79,9 @@ std::wstring CLRPlugin::GetPluginName()
     variant_t objectRef(GetObjectRef());
     variant_t returnVal;
 
-    HRESULT hr = getPluginNameMethod->Invoke_3(objectRef, nullptr, &returnVal);
+    HRESULT hr = methodInfos["get_Name"]->Invoke_3(objectRef, nullptr, &returnVal);
     if (FAILED(hr)) {
-        Log(TEXT("Failed to invoke GetPluginName on managed instance: 0x%08lx"), hr); 
+        Log(TEXT("Failed to invoke GetPluginName on managed instance: 0x%08lx"), hr);
         return std::wstring(TEXT("!error! see log"));
     }
 
@@ -205,11 +98,175 @@ std::wstring CLRPlugin::GetPluginDescription()
     variant_t objectRef(GetObjectRef());
     variant_t returnVal;
 
-    HRESULT hr = getPluginDescriptionMethod->Invoke_3(objectRef, nullptr, &returnVal);
+    HRESULT hr = methodInfos["get_Description"]->Invoke_3(objectRef, nullptr, &returnVal);
     if (FAILED(hr)) {
-        Log(TEXT("Failed to invoke GetPluginDescription on managed instance: 0x%08lx"), hr); 
+        Log(TEXT("Failed to invoke GetPluginDescription on managed instance: 0x%08lx"), hr);
         return std::wstring(TEXT("!error! see log"));
     }
 
     return std::wstring((const wchar_t*)returnVal.bstrVal);
+}
+
+bool CLRPlugin::LoadPlugin()
+{
+    if (!IsValid()) {
+        Log(TEXT("CLRPlugin::OnStopStream() no managed object attached"));
+    }
+
+    variant_t objectRef(GetObjectRef());
+    variant_t returnVal;
+
+    HRESULT hr = methodInfos["LoadPlugin"]->Invoke_3(objectRef, nullptr, &returnVal);
+    if (FAILED(hr)) {
+        Log(TEXT("Failed to invoke OnStopStream on managed instance: 0x%08lx"), hr); 
+    }
+
+    return returnVal.boolVal == VARIANT_TRUE;
+}
+
+void CLRPlugin::UnloadPlugin()
+{
+    CLR_INVOKE(nullptr);
+}
+
+void CLRPlugin::OnStartStream()
+{
+    CLR_INVOKE(nullptr);
+}
+
+void CLRPlugin::OnStopStream()
+{
+    CLR_INVOKE(nullptr);
+}
+
+void CLRPlugin::OnStartStreaming()
+{
+    CLR_INVOKE(nullptr);
+}
+
+void CLRPlugin::OnStopStreaming()
+{
+    CLR_INVOKE(nullptr);
+}
+
+void CLRPlugin::OnStartRecording()
+{
+    CLR_INVOKE(nullptr);
+}
+
+void CLRPlugin::OnStopRecording()
+{
+    CLR_INVOKE(nullptr);
+}
+
+void CLRPlugin::OnOBSStatus(bool running, bool streaming, bool recording, bool previewing, bool reconnecting)
+{
+    SAFEARRAYBOUND bounds[] = { { 5, 0 } };
+    LPSAFEARRAY args = SafeArrayCreate(VT_VARIANT, 1, bounds);
+    PUT_ELEMENT(0, running);
+    PUT_ELEMENT(1, streaming);
+    PUT_ELEMENT(2, recording);
+    PUT_ELEMENT(3, previewing);
+    PUT_ELEMENT(4, reconnecting);
+
+    CLR_INVOKE(args);
+
+    SafeArrayDestroy(args);
+}
+
+void CLRPlugin::OnStreamStatus(bool streaming, bool previewOnly, UINT bytesPerSec, double strain, UINT totalStreamTime, UINT totalNumFrames, UINT numDroppedFrames, UINT fps)
+{
+    SAFEARRAYBOUND bounds[] = { { 8, 0 } };
+    LPSAFEARRAY args = SafeArrayCreate(VT_VARIANT, 1, bounds);
+    PUT_ELEMENT(0, streaming);
+    PUT_ELEMENT(1, previewOnly);
+    PUT_ELEMENT(2, bytesPerSec);
+    PUT_ELEMENT(3, strain);
+    PUT_ELEMENT(4, totalStreamTime);
+    PUT_ELEMENT(5, totalNumFrames);
+    PUT_ELEMENT(6, numDroppedFrames);
+    PUT_ELEMENT(7, fps);
+
+    CLR_INVOKE(args);
+
+    SafeArrayDestroy(args);
+}
+
+void CLRPlugin::OnSceneSwitch(CTSTR scene)
+{
+    SAFEARRAYBOUND bounds[] = { { 1, 0 } };
+    LPSAFEARRAY args = SafeArrayCreate(VT_VARIANT, 1, bounds);
+    PUT_ELEMENT(0, scene);
+
+    CLR_INVOKE(args);
+
+    SafeArrayDestroy(args);
+}
+
+void CLRPlugin::OnScenesChanged()
+{
+    CLR_INVOKE(nullptr);
+}
+
+void CLRPlugin::OnSourceOrderChanged()
+{
+    CLR_INVOKE(nullptr);
+}
+
+void CLRPlugin::OnSourceChanged(CTSTR sourceName, XElement* source)
+{
+    CLRHost* clrHost = CLRHostPlugin::instance->GetCLRHost();
+    CLRXElement* clrSource = CLRXElement::Create(clrHost->GetXElementType(), source);
+
+    SAFEARRAYBOUND bounds[] = { { 2, 0 } };
+    LPSAFEARRAY args = SafeArrayCreate(VT_VARIANT, 1, bounds);
+    PUT_ELEMENT(0, sourceName);
+    PUT_ELEMENT(1, *clrSource);
+
+    CLR_INVOKE(args);
+
+    SafeArrayDestroy(args);
+}
+
+void CLRPlugin::OnSourcesAddedOrRemoved()
+{
+    CLR_INVOKE(nullptr);
+}
+
+void CLRPlugin::OnMicVolumeChanged(float level, bool muted, bool finalValue)
+{
+    SAFEARRAYBOUND bounds[] = { { 3, 0 } };
+    LPSAFEARRAY args = SafeArrayCreate(VT_VARIANT, 1, bounds);
+    PUT_ELEMENT(0, level);
+    PUT_ELEMENT(1, muted);
+    PUT_ELEMENT(2, finalValue);
+
+    CLR_INVOKE(args);
+
+    SafeArrayDestroy(args);
+}
+
+void CLRPlugin::OnDesktopVolumeChanged(float level, bool muted, bool finalValue)
+{
+    SAFEARRAYBOUND bounds[] = { { 3, 0 } };
+    LPSAFEARRAY args = SafeArrayCreate(VT_VARIANT, 1, bounds);
+    PUT_ELEMENT(0, level);
+    PUT_ELEMENT(1, muted);
+    PUT_ELEMENT(2, finalValue);
+
+    CLR_INVOKE(args);
+
+    SafeArrayDestroy(args);
+}
+
+void CLRPlugin::OnLogUpdate(CTSTR delta, UINT length)
+{
+    SAFEARRAYBOUND bounds[] = { { 2, 0 } };
+    LPSAFEARRAY args = SafeArrayCreate(VT_VARIANT, 1, bounds);
+    PUT_ELEMENT(0, delta);
+    PUT_ELEMENT(1, length);
+
+    CLR_INVOKE(args);
+
+    SafeArrayDestroy(args);
 }

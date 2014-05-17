@@ -3,14 +3,10 @@
 */
 #pragma once
 
-#include "OBSApi.h"
-#include "CLRHostApi.h"
-#include "CLRHost.h"
-#include "CLRPlugin.h"
-
 #include <vector>
 
-#define EXTERN_DLL_EXPORT extern "C" __declspec(dllexport)
+#include "CLRHostApi.h"
+#include "CLRHost.h"
 
 class CLRHostPlugin
 {
@@ -37,14 +33,28 @@ public:
 public:
     void LoadPlugins();
     void UnloadPlugins();
+
     void OnStartStream();
     void OnStopStream();
 
-};
+    void OnStartStreaming();
+    void OnStopStreaming();
 
-EXTERN_DLL_EXPORT bool LoadPlugin();
-EXTERN_DLL_EXPORT void UnloadPlugin();
-EXTERN_DLL_EXPORT void OnStartStream();
-EXTERN_DLL_EXPORT void OnStopStream();
-EXTERN_DLL_EXPORT CTSTR GetPluginName();
-EXTERN_DLL_EXPORT CTSTR GetPluginDescription();
+    void OnStartRecording();
+    void OnStopRecording();
+
+    void OnOBSStatus(bool running, bool streaming, bool recording, bool previewing, bool reconnecting);
+    void OnStreamStatus(bool streaming, bool previewOnly, UINT bytesPerSec, double strain, UINT totalStreamTime, UINT totalNumFrames, UINT numDroppedFrames, UINT fps);
+
+    void OnSceneSwitch(CTSTR scene);
+    void OnScenesChanged();
+
+    void OnSourceOrderChanged();
+    void OnSourceChanged(CTSTR sourceName, XElement* source);
+    void OnSourcesAddedOrRemoved();
+
+    void OnMicVolumeChanged(float level, bool muted, bool finalValue);
+    void OnDesktopVolumeChanged(float level, bool muted, bool finalValue);
+
+    void OnLogUpdate(CTSTR delta, UINT length);
+};

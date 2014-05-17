@@ -1,25 +1,11 @@
+#include "Stdafx.h"
 #include "CLRHost.h"
-
-#include "CLRHostApi.h"
-
-#include <metahost.h> 
-#include <string>
-#include <vector>
 
 #pragma comment(lib, "mscoree.lib") 
 #import "mscorlib.tlb" raw_interfaces_only high_property_prefixes("_get","_put","_putref") rename("ReportEvent", "InteropServices_ReportEvent") 
 using namespace mscorlib; 
 
-void __cdecl Log(const TCHAR *format, ...);
-void __cdecl CrashError(const TCHAR *format, ...);
-
-#ifndef assert
-#ifdef _DEBUG
-#define assert(check) if(!(check)) CrashError(TEXT("Assertion Failiure: (") TEXT(#check) TEXT(") failed\r\nFile: %s, line %d"), TEXT(__FILE__), __LINE__);
-#else
-#define assert(check)
-#endif
-#endif
+#define FOREACH_PLUGIN(x) for(auto i = clrPlugins.begin(); i < clrPlugins.end(); i++) { (*i)->x; }
 
 CLRHost::CLRHost(TCHAR *clrRuntimeVersion, CLRHostApi *clrApi) 
 {
@@ -30,13 +16,11 @@ CLRHost::CLRHost(TCHAR *clrRuntimeVersion, CLRHostApi *clrApi)
     isInitialized = false;
     isLibraryLoaded = false;
     this->clrApi = clrApi;
-
 }
 
 CLRHost::~CLRHost()
 {
     if (isInitialized) {
-
         corRuntimeHost->Stop();
 
         if (clrMetaHost) { 
@@ -52,6 +36,7 @@ CLRHost::~CLRHost()
             corRuntimeHost = nullptr; 
         }
     }
+
     if (isLibraryLoaded) {
         if (appDomain) {
             appDomain->Release();
@@ -191,7 +176,7 @@ bool CLRHost::Initialize()
             Log(TEXT("CLRHost::GetInstalledClrRuntimes) failed: 0x%08lx"), hr); 
             goto errorCleanup;
         }
-	}
+    }
 
     BOOL isLoadable; 
     hr = clrRuntimeInfo->IsLoadable(&isLoadable); 
@@ -249,9 +234,9 @@ bool CLRHost::LoadInteropLibrary()
 
     HRESULT hr;
 
-    IUnknown *appDomainSetupUnknown;
-    IAppDomainSetup *appDomainSetup;
-    IUnknown *appDomainUnknown;
+    IUnknown *appDomainSetupUnknown = NULL;
+    IAppDomainSetup *appDomainSetup = NULL;
+    IUnknown *appDomainUnknown = NULL;
 
     bstr_t bstrPluginPath(INTEROP_PATH);
     bstr_t isShadowCopyFiles("true");
@@ -584,14 +569,80 @@ void CLRHost::UnloadPlugins()
 
 void CLRHost::OnStartStream()
 {
-    for(auto i = clrPlugins.begin(); i < clrPlugins.end(); i++) {
-        (*i)->OnStartStream();
-    }
+    FOREACH_PLUGIN(OnStartStream());
 }
 
 void CLRHost::OnStopStream()
 {
-    for(auto i = clrPlugins.begin(); i < clrPlugins.end(); i++) {
-        (*i)->OnStopStream();
-    }
+    FOREACH_PLUGIN(OnStopStream());
+}
+
+void CLRHost::OnStartStreaming()
+{
+    FOREACH_PLUGIN(OnStartStreaming());
+}
+
+void CLRHost::OnStopStreaming()
+{
+    FOREACH_PLUGIN(OnStopStreaming());
+}
+
+void CLRHost::OnStartRecording()
+{
+    FOREACH_PLUGIN(OnStartRecording());
+}
+
+void CLRHost::OnStopRecording()
+{
+    FOREACH_PLUGIN(OnStopRecording());
+}
+
+void CLRHost::OnOBSStatus(bool running, bool streaming, bool recording, bool previewing, bool reconnecting)
+{
+    FOREACH_PLUGIN(OnOBSStatus(running, streaming, recording, previewing, reconnecting));
+}
+
+void CLRHost::OnStreamStatus(bool streaming, bool previewOnly, UINT bytesPerSec, double strain, UINT totalStreamTime, UINT totalNumFrames, UINT numDroppedFrames, UINT fps)
+{
+    FOREACH_PLUGIN(OnStreamStatus(streaming, previewOnly, bytesPerSec, strain, totalStreamTime, totalNumFrames, numDroppedFrames, fps));
+}
+
+void CLRHost::OnSceneSwitch(CTSTR scene)
+{
+    FOREACH_PLUGIN(OnSceneSwitch(scene));
+}
+
+void CLRHost::OnScenesChanged()
+{
+    FOREACH_PLUGIN(OnScenesChanged());
+}
+
+void CLRHost::OnSourceOrderChanged()
+{
+    FOREACH_PLUGIN(OnSourceOrderChanged());
+}
+
+void CLRHost::OnSourceChanged(CTSTR sourceName, XElement* source)
+{
+    FOREACH_PLUGIN(OnSourceChanged(sourceName, source));
+}
+
+void CLRHost::OnSourcesAddedOrRemoved()
+{
+    FOREACH_PLUGIN(OnSourcesAddedOrRemoved());
+}
+
+void CLRHost::OnMicVolumeChanged(float level, bool muted, bool finalValue)
+{
+    FOREACH_PLUGIN(OnMicVolumeChanged(level, muted, finalValue));
+}
+
+void CLRHost::OnDesktopVolumeChanged(float level, bool muted, bool finalValue)
+{
+    FOREACH_PLUGIN(OnDesktopVolumeChanged(level, muted, finalValue));
+}
+
+void CLRHost::OnLogUpdate(CTSTR delta, UINT length)
+{
+    FOREACH_PLUGIN(OnLogUpdate(delta, length));
 }

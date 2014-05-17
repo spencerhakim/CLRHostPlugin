@@ -2,7 +2,6 @@
 
 #include "SettingsPane.h"
 
-using namespace CLROBS;
 using namespace System;
 using namespace System::Windows;
 using namespace System::Windows::Interop;

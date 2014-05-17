@@ -1,3 +1,4 @@
+#include "Stdafx.h"
 #include "CLRobjectRef.h"
 
 CLRObjectRef::CLRObjectRef()

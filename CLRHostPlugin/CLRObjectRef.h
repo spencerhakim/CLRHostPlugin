@@ -2,8 +2,6 @@
 
 #include "CLRApiCommon.h"
 
-#include <string>
-
 class CLR_API CLRObjectRef
 {
 private:

@@ -46,6 +46,15 @@
     <ClInclude Include="SettingsPaneBridge.h">
       <Filter>Bridges</Filter>
     </ClInclude>
+    <ClInclude Include="PluginExports.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Stdafx.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="split.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -97,6 +106,15 @@
     </ClCompile>
     <ClCompile Include="CLRSettingsPane.cpp">
       <Filter>Source\Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="PluginExports.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Stdafx.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="split.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -2,7 +2,6 @@
 
 #include "CLRObject.h"
 #include "CLRVector2.h"
-#include <string>
 
 namespace mscorlib {
     struct _MethodInfo;

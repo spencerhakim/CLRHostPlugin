@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Stdafx.h"
 #include "Vector2.h"
-#include "XElement.h"
 
 namespace CLROBS {
     public interface class ImageSource
@@ -17,7 +17,7 @@ namespace CLROBS {
         }
         
         virtual void UpdateSettings();
-        virtual void BeginScene() ;
+        virtual void BeginScene();
         virtual void EndScene();
     };
 };

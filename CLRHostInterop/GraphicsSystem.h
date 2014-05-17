@@ -1,8 +1,5 @@
 #pragma once
 
-class Texture;
-class GraphicsSystem;
-
 namespace CLROBS 
 {
     public enum class GSDrawMode {

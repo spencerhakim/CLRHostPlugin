@@ -1,18 +1,15 @@
 #pragma once
 
-#include "ImageSource.h"
+#include "API.h"
+#include "CLRHostApi.h"
 #include "SettingsPane.h"
-#include "AbstractWPFSettingsPane.h"
 #include "ImageSourceFactory.h"
 
+using namespace System::Windows;
 using namespace System::Threading;
-using namespace CLROBS;
-
-class CLRHostApi;
 
 namespace CLROBS 
 {
-    
     public ref class API
     {
     private:

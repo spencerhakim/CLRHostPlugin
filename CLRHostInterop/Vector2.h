@@ -1,5 +1,7 @@
 #pragma once
 
+using namespace System;
+
 namespace CLROBS {
     public ref class Vector2
     {
@@ -8,22 +10,18 @@ namespace CLROBS {
         float y;
 
     public:
-        Vector2(float x, float y)
-        {
-            this->x = x;
-            this->y = y;
-        }
+        Vector2(float x, float y);
 
         property float X
         {
-            float get() { return this->x; }
-            void set(float x) { this->x = x; }
+            float get();
+            void set(float x);
         }
 
         property float Y
         {
-            float get() { return this->y; }
-            void set(float y) { this->y = y; }
+            float get();
+            void set(float y);
         }
     };
-}
+};

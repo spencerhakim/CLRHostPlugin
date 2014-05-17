@@ -1,30 +1,33 @@
+#include "Stdafx.h"
 #include "AbstractImageSourceFactory.h"
 
 #define WS_CHILD    0x40000000L
 #define WS_VISIBLE  0x10000000L
 
-AbstractImageSourceFactory::AbstractImageSourceFactory()
-{
-    this->ClassName = gcnew String("DefaultImageSourceClassName");
-    this->DisplayName = gcnew String("DefaultImageSourceDisplayName");
-}
+namespace CLROBS {
+    AbstractImageSourceFactory::AbstractImageSourceFactory()
+    {
+        this->ClassName = gcnew System::String("DefaultImageSourceClassName");
+        this->DisplayName = gcnew System::String("DefaultImageSourceDisplayName");
+    }
 
-String^ AbstractImageSourceFactory::ClassName::get()
-{
-    return className;
-}
+    System::String^ AbstractImageSourceFactory::ClassName::get()
+    {
+        return className;
+    }
 
-void AbstractImageSourceFactory::ClassName::set(String^ className)
-{
-    this->className = className;
-}
+    void AbstractImageSourceFactory::ClassName::set(System::String^ className)
+    {
+        this->className = className;
+    }
 
-String^ AbstractImageSourceFactory::DisplayName::get()
-{
-    return displayName;
-}
+    System::String^ AbstractImageSourceFactory::DisplayName::get()
+    {
+        return displayName;
+    }
 
-void AbstractImageSourceFactory::DisplayName::set(String^ displayName)
-{
-    this->displayName = displayName;
+    void AbstractImageSourceFactory::DisplayName::set(System::String^ displayName)
+    {
+        this->displayName = displayName;
+    }
 }

@@ -1,10 +1,8 @@
 /**
 * John Bradley (jrb@turrettech.com)
 */
+#include "Stdafx.h"
 #include "CLRHostPlugin.h"
-#include "Localization.h"
-#include "CLRHostApi.h"
-#include "CLRHost.h"
 
 HINSTANCE CLRHostPlugin::hinstDLL = NULL;
 CLRHostPlugin *CLRHostPlugin::instance = NULL;
@@ -53,7 +51,6 @@ CLRHostPlugin::~CLRHostPlugin() {
         delete clrApi;
         clrApi = nullptr;
     }
-
 }
 
 void CLRHostPlugin::LoadPlugins()
@@ -79,57 +76,72 @@ void CLRHostPlugin::OnStopStream()
     clrHost->OnStopStream();
 }
 
-bool LoadPlugin()
+void CLRHostPlugin::OnStartStreaming()
 {
-    if(CLRHostPlugin::instance != NULL) {
-        return false;
-    }
-    CLRHostPlugin::instance = new CLRHostPlugin();
-    CLRHostPlugin::instance->LoadPlugins();
-    return true;
+    clrHost->OnStartStreaming();
 }
 
-void UnloadPlugin()
+void CLRHostPlugin::OnStopStreaming()
 {
-    if(CLRHostPlugin::instance == NULL) {
-        return;
-    }
-
-    CLRHostPlugin::instance->UnloadPlugins();
-    delete CLRHostPlugin::instance;
-    CLRHostPlugin::instance = NULL;
+    clrHost->OnStopStreaming();
 }
 
-void OnStartStream()
+void CLRHostPlugin::OnStartRecording()
 {
-    if(CLRHostPlugin::instance == NULL) {
-        return;
-    }
-    CLRHostPlugin::instance->OnStartStream();
+    clrHost->OnStartRecording();
 }
 
-void OnStopStream()
+void CLRHostPlugin::OnStopRecording()
 {
-    if(CLRHostPlugin::instance == NULL) {
-        return;
-    }
-    CLRHostPlugin::instance->OnStopStream();
+    clrHost->OnStopRecording();
 }
 
-CTSTR GetPluginName()
+void CLRHostPlugin::OnOBSStatus(bool running, bool streaming, bool recording, bool previewing, bool reconnecting)
 {
-    return STR("PluginName");
+    clrHost->OnOBSStatus(running, streaming, recording, previewing, reconnecting);
 }
 
-CTSTR GetPluginDescription()
+void CLRHostPlugin::OnStreamStatus(bool streaming, bool previewOnly, UINT bytesPerSec, double strain, UINT totalStreamTime, UINT totalNumFrames, UINT numDroppedFrames, UINT fps)
 {
-    return STR("PluginDescription");
+    clrHost->OnStreamStatus(streaming, previewOnly, bytesPerSec, strain, totalStreamTime, totalNumFrames, numDroppedFrames, fps);
 }
 
-BOOL CALLBACK DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+void CLRHostPlugin::OnSceneSwitch(CTSTR scene)
 {
-    if(fdwReason == DLL_PROCESS_ATTACH) {
-        CLRHostPlugin::hinstDLL = hinstDLL;
-    }
-    return TRUE;
+    clrHost->OnSceneSwitch(scene);
+}
+
+void CLRHostPlugin::OnScenesChanged()
+{
+    clrHost->OnScenesChanged();
+}
+
+void CLRHostPlugin::OnSourceOrderChanged()
+{
+    clrHost->OnSourceOrderChanged();
+}
+
+void CLRHostPlugin::OnSourceChanged(CTSTR sourceName, XElement* source)
+{
+    clrHost->OnSourceChanged(sourceName, source);
+}
+
+void CLRHostPlugin::OnSourcesAddedOrRemoved()
+{
+    clrHost->OnSourcesAddedOrRemoved();
+}
+
+void CLRHostPlugin::OnMicVolumeChanged(float level, bool muted, bool finalValue)
+{
+    clrHost->OnMicVolumeChanged(level, muted, finalValue);
+}
+
+void CLRHostPlugin::OnDesktopVolumeChanged(float level, bool muted, bool finalValue)
+{
+    clrHost->OnDesktopVolumeChanged(level, muted, finalValue);
+}
+
+void CLRHostPlugin::OnLogUpdate(CTSTR delta, UINT length)
+{
+    clrHost->OnLogUpdate(delta, length);
 }

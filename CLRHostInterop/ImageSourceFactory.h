@@ -1,8 +1,8 @@
 #pragma once
 
 #include "ImageSource.h"
+#include "XElement.h"
 
-using namespace CLROBS;
 using namespace System;
 
 namespace CLROBS {

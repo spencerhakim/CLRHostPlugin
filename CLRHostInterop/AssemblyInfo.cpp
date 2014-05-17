@@ -1,3 +1,5 @@
+#include "Stdafx.h"
+
 using namespace System;
 using namespace System::Reflection;
 using namespace System::Runtime::CompilerServices;
@@ -14,7 +16,7 @@ using namespace System::Security::Permissions;
 [assembly:AssemblyConfigurationAttribute("")];
 [assembly:AssemblyCompanyAttribute("")];
 [assembly:AssemblyProductAttribute("CLRHostInterop")];
-[assembly:AssemblyCopyrightAttribute("Copyright (c)  2013")];
+[assembly:AssemblyCopyrightAttribute("Copyright (c)  2014")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];
 

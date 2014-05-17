@@ -1,11 +1,5 @@
-#include "OBSApi.h"
+#include "Stdafx.h"
 #include "CLRHostApi.h"
-#include "CLRHostPlugin.h"
-#include "CLRImageSource.h"
-#include "CLRImageSourceFactory.h"
-#include "CLRSettingsPane.h"
-#include "ImageSourceBridge.h"
-#include "SettingsPaneBridge.h"
 
 CLRHostApi::~CLRHostApi()
 {
@@ -125,5 +119,4 @@ void CLRHostApi::AddImageSourceFactory(CLRObjectRef &clrObjectRef)
         Log(TEXT("Error attaching unmanaged CLRImageSourceFactory to managed instance"));
         delete imageSourceFactory;
     }
-
 }

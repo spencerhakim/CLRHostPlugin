@@ -2,20 +2,19 @@
 
 #include "ImageSourceFactory.h"
 #include "ImageSource.h"
-#include "API.h"
+#include "XElement.h"
 
 using namespace System;
 using namespace System::Windows;
 using namespace System::Windows::Interop;
-using namespace CLROBS;
 
 namespace CLROBS 
 {
     public ref class AbstractImageSourceFactory abstract : public ImageSourceFactory
     {
     private:
-        String^ className;
-        String^ displayName;
+        System::String^ className;
+        System::String^ displayName;
 
     public:
         AbstractImageSourceFactory();
@@ -25,23 +24,20 @@ namespace CLROBS
         virtual ImageSource^ Create(XElement^ data) abstract;
         virtual bool ShowConfiguration(XElement^ data) abstract;
 
-        property String^ DisplayName 
+        property System::String^ DisplayName
         {
         public:
-            virtual String^ get() sealed;
+            virtual System::String^ get() sealed;
         protected:
-            void set(String^ displayName);
+            void set(System::String^ displayName);
         }
 
-        property String^ ClassName 
+        property System::String^ ClassName
         {
         public:
-            virtual String^ get() sealed;
+            virtual System::String^ get() sealed;
         protected:
-            void set(String^ className); 
+            void set(System::String^ className);
         }  
-
     };
-
-    
 };
